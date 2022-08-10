@@ -60,8 +60,8 @@ def students_by_cohort(filename, cohort='All'):
     
     for line in cohort_data:
       first, last, _, _, cohort_name = line.rstrip().split('|')
-      if cohort_name not in ('I', 'G') and cohort in ('All', cohort_name)
-        students.append(f '{first} {last}')
+      if cohort_name not in ('I', 'G') and cohort in ('All', cohort_name):
+        students.append(f'{first} {last}')
     return sorted(students)
 
 
@@ -103,10 +103,40 @@ def all_names_by_house(filename):
     slytherin = []
     ghosts = []
     instructors = []
-
-    # TODO: replace this with your code
-
-    return []
+    
+    cohort_data = open(filename)
+    
+    for line in cohort_data:
+      first, last, house, _, cohort_name = line.rstrip().split('|')
+      
+      fullname = f'{first} {last}'
+      
+      if house:
+        if house == "Dumbledore's Army":
+          dumbledores_army.append(fullname)
+        elif house == "Gryffindor":
+          gryffindor.append(fullname)
+        elif house == "Hufflepuff":
+          hufflepuff.append(fullname)
+        elif house == "Ravenclaw":
+          ravenclaw.append(fullname)
+        elif house == "Slytherin":
+          slytherin.append(fullname)
+      else:
+        if cohort_name == "G":
+          ghosts.append(fullname)
+        elif cohort_name == "I":
+          instructors.append(fullname)
+  
+          
+    return [sorted(dumbledores_army),
+            sorted(gryffindor),
+            sorted(hufflepuff),
+            sorted(ravenclaw),
+            sorted(slytherin),
+            sorted(ghosts),
+            sorted(instructors)
+            ]
 
 
 def all_data(filename):
@@ -130,8 +160,12 @@ def all_data(filename):
 
     all_data = []
 
-    # TODO: replace this with your code
-
+    cohort_data = open(filename)
+    
+    for line in cohort_data:
+      first, last, house, advisor, cohort_name = line.rstrip().split('|')
+      all_data.append((f'{first} {last}', house, advisor, cohort_name))
+    
     return all_data
 
 
@@ -156,8 +190,10 @@ def get_cohort_for(filename, name):
       - str: the person's cohort or None
     """
 
-    # TODO: replace this with your code
-
+    for full_name, _, _, cohort_name in all_data(filename):
+      if full_name == name:
+        return cohort_name    
+    
 
 def find_duped_last_names(filename):
     """Return a set of duplicated last names that exist in the data.
@@ -173,7 +209,18 @@ def find_duped_last_names(filename):
       - set[str]: a set of strings
     """
 
-    # TODO: replace this with your code
+    dupes = set()
+    seen = set()
+    
+    for full_name, _, _, _ in all_data(filename):
+      last = full_name.split(' ')[-1]
+
+      if last in seen:
+           dupes.add(last)
+
+      seen.add(last)
+
+    return dupes
 
 
 def get_housemates_for(filename, name):
@@ -188,8 +235,25 @@ def get_housemates_for(filename, name):
     {'Angelina Johnson', ..., 'Seamus Finnigan'}
     """
 
-    # TODO: replace this with your code
+    housemates = set()
 
+    target_person = None
+    for person in all_data(filename):
+        full_name, house, advisor, cohort_name = person
+
+        if full_name == name:
+            target_person = person
+            break
+
+    if target_person:
+        target_name, target_house, _, target_cohort = target_person
+
+        for full_name, house, _, cohort_name in all_data(filename):
+            if ((house, cohort_name) == (target_house, target_cohort) and
+                    full_name != name):
+                housemates.add(full_name)
+
+    return housemates   
 
 ##############################################################################
 # END OF MAIN EXERCISE.  Yay!  You did it! You Rock!
